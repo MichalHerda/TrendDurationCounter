@@ -1,1 +1,20 @@
 Specyfikacja Projektu 'Trend Duration':
+
+1. Program iteruje poprzez dostępne instrumenty i oblicza czas trwania trendów na podstawie argumentów wejściowych:
+	a) timeframe;
+	b) enum mode trend wzrostowy/spadkowy/wzrostowy&spadkowy (upward/downward/both);
+	c) liczba okresów wzięta pod uwagę (domyślnie wszystkie dostępne świece);
+	d) średnia krocząca, będaca kryterium pomiaru trendu:
+		- liczba okresów, z jakich średnia krocząca została obliczona,
+		- rodzaj średniej kroczącej: ENUM_MA_METHOD,
+		- cena brana pod uwagę przy obliczaniu średniej kroczącej: ENUM_APPLIED_PRICE,
+	e) filtr w postaci minimalnej ilości świec, wymaganej aby istnienie trendu zostało uznane za prawdziwe
+	
+2. Efekt działania programu:
+	a) zostanie zapisana tablica struktur dla każdego instrumentu, zawierająca wszystkie zaistniałe trendy, przefiltrowane za pomocą danych wejściowych;
+	b) powyższe tablice zostaną zapisane do plików (każdy instrument - osobny plik);
+	c) opcja sortowania danych: chronologicznie, bądź pod względem czasu trwania trendu;
+	d) opcja obliczenia średniego czasu trwania trendu oraz mediany dla danego timeframe
+		
+		
+	
