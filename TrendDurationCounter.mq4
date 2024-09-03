@@ -57,9 +57,12 @@ int OnInit()
    for(int i = 0; i < availableSymbols; i++) {
    
       string symbol = SymbolName(i, false);
-      int barsNo = iBars(symbol, trendTf);
+      int barsNo = iBars(symbol, trendTf) - 1;
       int firstCalculatedBarIdx = barsNo - maPeriod;
-      Print("index: ",i ,". name: ", symbol, ". bars no: ", barsNo);
+      datetime firstBarTime = iTime(symbol, trendTf, barsNo);
+      Print("name: ", symbol, "first bar time: ", firstBarTime);
+      datetime firstCalculatedBarTime = iTime(symbol, trendTf, firstCalculatedBarIdx);
+      Print("index: ",i ,". name: ", symbol, ". bars no: ", barsNo, "first calculated idx: ", firstCalculatedBarIdx, "starts: ", firstCalculatedBarTime);
       
       
    }   
