@@ -48,12 +48,35 @@ instrumentData instrumentDataArray[];
 
 
 
+bool isShare(string symbol)
+   {
+    int firstCharCode = StringGetChar(symbol, 0);
+    return firstCharCode == '#';
+   }
+
+
+   
+int countNonShareInstruments(int availableSymbols)
+   {
+      int nonShareInstruments = 0;
+      
+      for(int i = 0; i < availableSymbols; i++) {
+         string symbol = SymbolName(i, false);
+         if(!isShare(symbol)) nonShareInstruments++;
+      }
+      
+      return nonShareInstruments;
+   }
+
+
+
 int OnInit()
   {
    //EventSetTimer(60);
    int availableSymbols = SymbolsTotal(false);
    Print("available symbols: ", availableSymbols);
    
+   Print("non share instruments: ", countNonShareInstruments(availableSymbols));
    for(int i = 0; i < availableSymbols; i++) {
    
       string symbol = SymbolName(i, false);
