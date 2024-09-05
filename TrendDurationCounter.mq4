@@ -80,13 +80,19 @@ int OnInit()
    for(int i = 0; i < availableSymbols; i++) {
    
       string symbol = SymbolName(i, false);
-      int barsNo = iBars(symbol, trendTf) - 1;
-      int firstCalculatedBarIdx = barsNo - maPeriod;
-      datetime firstBarTime = iTime(symbol, trendTf, barsNo);
-      Print("name: ", symbol, "first bar time: ", firstBarTime);
-      datetime firstCalculatedBarTime = iTime(symbol, trendTf, firstCalculatedBarIdx);
-      Print("index: ",i ,". name: ", symbol, ". bars no: ", barsNo, "first calculated idx: ", firstCalculatedBarIdx, "starts: ", firstCalculatedBarTime);
       
+      if(!includeShares && isShare(symbol)) {
+         Print(symbol, " is stocks, the current settings do not support stocks.");
+      }
+      
+      else {
+         int barsNo = iBars(symbol, trendTf) - 1;
+         int firstCalculatedBarIdx = barsNo - maPeriod;
+         datetime firstBarTime = iTime(symbol, trendTf, barsNo);
+         Print("name: ", symbol, "first bar time: ", firstBarTime);
+         datetime firstCalculatedBarTime = iTime(symbol, trendTf, firstCalculatedBarIdx);
+         Print("index: ",i ,". name: ", symbol, ". bars no: ", barsNo, "first calculated idx: ", firstCalculatedBarIdx, "starts: ", firstCalculatedBarTime);
+      }
       
    }   
    return(INIT_SUCCEEDED);
