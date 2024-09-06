@@ -48,6 +48,33 @@ instrumentData instrumentDataArray[];
 
 
 
+double pricePosition(string symbol, ENUM_TIMEFRAMES tf, int period, TREND_MODE trend_mode) 
+   {
+    int maximumPriceIdx = iHighest(symbol, tf, period);
+    double maximumPrice = iHigh(symbol, tf, maximumPriceIdx);
+    
+    int minimumPriceIdx = iLowest(symbol, tf, period);
+    double minimumPrice = iLow(symbol, tf, minimumPriceIdx);
+    
+    double span = maximumPrice - minimumPrice;
+    
+    double currentPrice = 0;
+    if(trend_mode == UPWARD) { currentPrice = SymbolInfoDouble(symbol, SYMBOL_ASK); }
+    if(trend_mode == DOWNWARD) { currentPrice = SymbolInfoDouble(symbol, SYMBOL_BID); }
+    if(trend_mode == BOTH) { Print("Wrong trend_mode. Switch to UPWARD "); 
+                             trend_mode = UPWARD;
+                             currentPrice = SymbolInfoDouble(symbol, SYMBOL_ASK);                          
+                           }
+    double calculatedPrice = currentPrice - minimumPrice;
+                            
+    if( (span != 0) && (maximumPrice > minimumPrice) )
+      {
+       return (calculatedPrice / span) * 100;
+      }
+   else
+       return 0; 
+   } 
+   
 bool isShare(string symbol)
    {
     int firstCharCode = StringGetChar(symbol, 0);
@@ -91,7 +118,7 @@ int OnInit()
          datetime firstBarTime = iTime(symbol, trendTf, barsNo);
          Print("name: ", symbol, "first bar time: ", firstBarTime);
          datetime firstCalculatedBarTime = iTime(symbol, trendTf, firstCalculatedBarIdx);
-         Print("index: ",i ,". name: ", symbol, ". bars no: ", barsNo, "first calculated idx: ", firstCalculatedBarIdx, "starts: ", firstCalculatedBarTime);
+         Print("index: ",i ,". name: ", symbol, ". bars no: ", barsNo, ". first calculated idx: ", firstCalculatedBarIdx, ". starts: ", firstCalculatedBarTime);
       }
       
    }   

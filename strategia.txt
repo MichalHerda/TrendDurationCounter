@@ -30,7 +30,7 @@ WNIOSKI ODNOŚNIE KSZTAŁTU STRATEGII FOREX NA PODSTAWIE 3 DNI TRADINGOWYCH
 		- osiągnięcie SL obliczonego na podstawie ostatnich świec
 		- zakończenie trendu wyższego rzędu
 		- osiągnięcie TP
-		
+		      
 			
 		
 
