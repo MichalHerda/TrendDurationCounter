@@ -1,0 +1,36 @@
+4-6 września 2024
+
+WNIOSKI ODNOŚNIE KSZTAŁTU STRATEGII FOREX NA PODSTAWIE 3 DNI TRADINGOWYCH
+
+1. Wątpliwości odnośnie tego, jak w pełni zautomatyzować strategię. Ten etap może się okazać zbyt trudny dla robota tradingowego, z racji tego, że należy zmierzyć się z następującymi zagadnieniami:
+	a) jak dokonać najwłaściwszej selekcji instrumentu, na którym spekulacja może przynieść najwyższe zyski w określonym czasie?
+		- średnie kroczące jako kryterium istnienia trendu:
+			.określenie kierunku trendu na podstawie wartości SMA, opartego na cenach zamknięcia i na relatywnie krótkim okresie, np 5 świec D1
+			.nie ulega wątpliwości, że należy się trzymać gry na podstawie w/w trendu - przynajmniej teoretycznie
+			.teoretycznie, bo można niby grać jeszcze wsparcia i opory w dłuższych konsolidacjach...
+		- jak zatem wybrać instrument, na którym warto zagrać w określonym momencie?
+			.po pierwsze, nie należy za wszelką cenę znajdować się na rynku
+			.czy wybierać ten instrument na podstawie tego, jak długo na danym instrumencie kształtuje się trend? Nie do końca...
+			.może więc odniesienie się do tego w jakim miejscu w przedziale cen czasu x znajduje się obecna cena, w połączneniu z zastosowaniem formacji cenowych?
+			
+	b) wniosek z tych ostatnich dni jest taki, że na obecnym etapie nie mogę całkowicie zautomatyzować wyboru instrumentu handlu, w związku z tym moja strategia jest 
+	   w pewnym stopniu półautomatyczna. Pomijam więc wszelkie algorytmy, mające na celu odnalezienie najwłaściwszego instrumentu a skupiam się na samej strategii:
+	   	- strategia zostanie więc uruchomiona na kilku/kilkunastu instrumentach i będzie uruchamiana manualnie
+	   	
+	   	
+2. Główne założenia do implementacji:
+	a) gra z trendem 1D - do przemyślenia, czy ten trend ma mieć potwierdzenie w trendzie niższego rzędu, np 4H
+	b) kryterium wejścia jest:
+		- PricePosition - wskaźnik określający w jakim miejscu w przedziale czasu X znajduje się obecna cena: w trendzie wzrostowym im niższy tym korzystniejszy,
+		  w trendzie spadkowym im wyższy tym korzystniejszy
+		- zakończenie trendu niższego rzędu, przeciwnego do trendu wyższego rzędu
+		- ewentualnie również formacje cenowe
+		- odległość ceny od średniej kroczącej
+	c) kryterium wyjścia: 
+		- osiągnięcie SL obliczonego na podstawie ostatnich świec
+		- zakończenie trendu wyższego rzędu
+		- osiągnięcie TP
+		
+			
+		
+
