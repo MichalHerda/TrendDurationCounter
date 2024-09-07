@@ -112,21 +112,61 @@ void fillTrendDataArray(string symbol)
       double previousMaValue = iMA(symbol, trendTf, trendPeriod, 0, maMethod, appliedPrice, firstCalculatedBarIdx);
       double currentMaValue = 0;
       int trendDuration = 0;
+      TREND_MODE iterationTrend = BOTH;
       
-      for(int i = firstCalculatedBarIdx; i > 0; i--) {
-       if(i != firstCalculatedBarIdx) {
+      for(int i = firstCalculatedBarIdx - 1; i > 0; i--) {
+       
          currentMaValue = iMA(symbol, trendTf, trendPeriod, 0, maMethod, appliedPrice, i);
+         
          if     (currentMaValue > previousMaValue) {
-         
+            if(iterationTrend != UPWARD) { 
+               iterationTrend = UPWARD;         
+               trendDuration = 0;
+            }  
+            if(iterationTrend == UPWARD) {
+               trendDuration++;
+               if(trendMode != DOWNWARD) {
+                  int currentArraySize = ArraySize(trendDataArray);
+                  if(trendDuration == trendFilter) {
+                     ArrayResize(trendDataArray, currentArraySize + 1);
+                     trendDataArray[currentArraySize].timestamp = iTime(symbol, trendTf, i);
+                     trendDataArray[currentArraySize].duration = trendDuration;
+                  }
+                  if(trendDuration > trendFilter) {
+                     trendDataArray[currentArraySize].duration = trendDuration;
+                  }
+               }   
+            } 
          }
+         
          else if(currentMaValue < previousMaValue) {
-         
+            if(iterationTrend != DOWNWARD) {
+               iterationTrend = DOWNWARD; 
+               trendDuration = 0;
+            }   
+            if(iterationTrend == DOWNWARD) {
+               trendDuration++;
+               if(trendMode != UPWARD) {
+                  int currentArraySize = ArraySize(trendDataArray);
+                  if(trendDuration == trendFilter) {
+                     ArrayResize(trendDataArray, currentArraySize + 1);
+                     trendDataArray[currentArraySize].timestamp = iTime(symbol, trendTf, i);
+                     trendDataArray[currentArraySize].duration = trendDuration;
+                  }
+                  if(trendDuration > trendFilter) {
+                     trendDataArray[currentArraySize].duration = trendDuration;
+                  }
+               }   
+            }
          }
+         
          else if(currentMaValue == previousMaValue) {
          
          }
+         
+         previousMaValue = currentMaValue;
        }  
-      } 
+      
    }
 
 
