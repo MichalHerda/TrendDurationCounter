@@ -15,7 +15,7 @@ enum TREND_MODE
 
 
 
-struct trend 
+struct trendData
    {
     datetime timestamp;
     int duration;
@@ -28,7 +28,7 @@ struct trend
 struct instrumentData
    {
     string symbol;
-    trend data[];
+    trendData trendDataArray[];
    };
    
 
@@ -45,7 +45,7 @@ input bool includeShares = false;
 
 
 instrumentData instrumentDataArray[];
-
+trendData trendDataArray[];
 
 
 double pricePosition(string symbol, ENUM_TIMEFRAMES tf, int period, TREND_MODE trend_mode) 
@@ -97,13 +97,50 @@ int countNonShareInstruments(int availableSymbols)
 
 
 
+void fillTrendDataArray(string symbol)
+   {
+      ArrayResize(trendDataArray, 0);
+      
+      int barsNo = iBars(symbol, trendTf) - 1;
+      int firstCalculatedBarIdx = barsNo - maPeriod;
+      datetime firstBarTime = iTime(symbol, trendTf, barsNo);
+      Print("name: ", symbol, "first bar time: ", firstBarTime);
+      datetime firstCalculatedBarTime = iTime(symbol, trendTf, firstCalculatedBarIdx);
+      Print("name: ", symbol, ". bars no: ", barsNo, ". first calculated idx: ", 
+            firstCalculatedBarIdx, ". starts at: ", firstCalculatedBarTime);
+            
+      double previousMaValue = iMA(symbol, trendTf, trendPeriod, 0, maMethod, appliedPrice, firstCalculatedBarIdx);
+      double currentMaValue = 0;
+      int trendDuration = 0;
+      
+      for(int i = firstCalculatedBarIdx; i > 0; i--) {
+       if(i != firstCalculatedBarIdx) {
+         currentMaValue = iMA(symbol, trendTf, trendPeriod, 0, maMethod, appliedPrice, i);
+         if     (currentMaValue > previousMaValue) {
+         
+         }
+         else if(currentMaValue < previousMaValue) {
+         
+         }
+         else if(currentMaValue == previousMaValue) {
+         
+         }
+       }  
+      } 
+   }
+
+
 int OnInit()
   {
    //EventSetTimer(60);
+   
+   ArrayResize(instrumentDataArray, 0);
+   
    int availableSymbols = SymbolsTotal(false);
    Print("available symbols: ", availableSymbols);
    
    Print("non share instruments: ", countNonShareInstruments(availableSymbols));
+   
    for(int i = 0; i < availableSymbols; i++) {
    
       string symbol = SymbolName(i, false);
@@ -113,12 +150,11 @@ int OnInit()
       }
       
       else {
-         int barsNo = iBars(symbol, trendTf) - 1;
-         int firstCalculatedBarIdx = barsNo - maPeriod;
-         datetime firstBarTime = iTime(symbol, trendTf, barsNo);
-         Print("name: ", symbol, "first bar time: ", firstBarTime);
-         datetime firstCalculatedBarTime = iTime(symbol, trendTf, firstCalculatedBarIdx);
-         Print("index: ",i ,". name: ", symbol, ". bars no: ", barsNo, ". first calculated idx: ", firstCalculatedBarIdx, ". starts: ", firstCalculatedBarTime);
+         
+         fillTrendDataArray(symbol);
+         
+         ArrayResize(instrumentDataArray, ArraySize(instrumentDataArray) + 1);
+         Print("instrumentDataArray after resizing: ", ArraySize(instrumentDataArray));
       }
       
    }   
