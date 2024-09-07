@@ -101,72 +101,98 @@ void fillTrendDataArray(string symbol)
    {
       ArrayResize(trendDataArray, 0);
       
-      int barsNo = iBars(symbol, trendTf) - 1;
-      int firstCalculatedBarIdx = barsNo - maPeriod;
-      datetime firstBarTime = iTime(symbol, trendTf, barsNo);
-      Print("name: ", symbol, "first bar time: ", firstBarTime);
-      datetime firstCalculatedBarTime = iTime(symbol, trendTf, firstCalculatedBarIdx);
-      Print("name: ", symbol, ". bars no: ", barsNo, ". first calculated idx: ", 
-            firstCalculatedBarIdx, ". starts at: ", firstCalculatedBarTime);
+      string fileName = symbol + "_" + EnumToString(trendTf);
+      int fileHandle = FileOpen(fileName, FILE_WRITE);
+      
+      if(fileHandle != INVALID_HANDLE) {
+      
+         int barsNo = iBars(symbol, trendTf) - 1;
+         int firstCalculatedBarIdx = barsNo - maPeriod;
+         datetime firstBarTime = iTime(symbol, trendTf, barsNo);
+         Print("name: ", symbol, "first bar time: ", firstBarTime);
+         datetime firstCalculatedBarTime = iTime(symbol, trendTf, firstCalculatedBarIdx);
+         Print("name: ", symbol, ". bars no: ", barsNo, ". first calculated idx: ", 
+               firstCalculatedBarIdx, ". starts at: ", firstCalculatedBarTime);
+               
+         double previousMaValue = iMA(symbol, trendTf, maPeriod, 0, maMethod, appliedPrice, firstCalculatedBarIdx);
+         double currentMaValue = 0;
+         int trendDuration = 0;
+         TREND_MODE iterationTrend = BOTH;
+         
+         for(int i = firstCalculatedBarIdx - 1; i > 0; i--) {
+          
+            currentMaValue = iMA(symbol, trendTf, maPeriod, i, maMethod, appliedPrice, 0);
+            //Print("idx: ", i, ". current iMA: ", currentMaValue);
+            //Print(symbol, ". ", trendTf, ". ", maPeriod, ". ", i, ". ", maMethod, ". ", appliedPrice, 0, ". ");
+            int currentArraySize = ArraySize(trendDataArray);
             
-      double previousMaValue = iMA(symbol, trendTf, trendPeriod, 0, maMethod, appliedPrice, firstCalculatedBarIdx);
-      double currentMaValue = 0;
-      int trendDuration = 0;
-      TREND_MODE iterationTrend = BOTH;
-      
-      for(int i = firstCalculatedBarIdx - 1; i > 0; i--) {
-       
-         currentMaValue = iMA(symbol, trendTf, trendPeriod, 0, maMethod, appliedPrice, i);
-         
-         if     (currentMaValue > previousMaValue) {
-            if(iterationTrend != UPWARD) { 
-               iterationTrend = UPWARD;         
-               trendDuration = 0;
-            }  
-            if(iterationTrend == UPWARD) {
-               trendDuration++;
-               if(trendMode != DOWNWARD) {
-                  int currentArraySize = ArraySize(trendDataArray);
-                  if(trendDuration == trendFilter) {
-                     ArrayResize(trendDataArray, currentArraySize + 1);
-                     trendDataArray[currentArraySize].timestamp = iTime(symbol, trendTf, i);
-                     trendDataArray[currentArraySize].duration = trendDuration;
+            if     (currentMaValue > previousMaValue) {
+               if(iterationTrend != UPWARD) { 
+                  if(trendDuration >= trendFilter) {
+                     Print("Writing to file: Index = ", currentArraySize, ", Timestamp = ", trendDataArray[currentArraySize].timestamp, ", Duration = ", trendDataArray[currentArraySize].duration);
+
+                     FileWrite(fileHandle, currentArraySize, trendDataArray[currentArraySize].timestamp,
+                               trendDataArray[currentArraySize].duration);
                   }
-                  if(trendDuration > trendFilter) {
-                     trendDataArray[currentArraySize].duration = trendDuration;
-                  }
-               }   
-            } 
-         }
-         
-         else if(currentMaValue < previousMaValue) {
-            if(iterationTrend != DOWNWARD) {
-               iterationTrend = DOWNWARD; 
-               trendDuration = 0;
-            }   
-            if(iterationTrend == DOWNWARD) {
-               trendDuration++;
-               if(trendMode != UPWARD) {
-                  int currentArraySize = ArraySize(trendDataArray);
-                  if(trendDuration == trendFilter) {
-                     ArrayResize(trendDataArray, currentArraySize + 1);
-                     trendDataArray[currentArraySize].timestamp = iTime(symbol, trendTf, i);
-                     trendDataArray[currentArraySize].duration = trendDuration;
-                  }
-                  if(trendDuration > trendFilter) {
-                     trendDataArray[currentArraySize].duration = trendDuration;
-                  }
-               }   
+                  iterationTrend = UPWARD;         
+                  trendDuration = 0;
+               }  
+               if(iterationTrend == UPWARD) {
+                  trendDuration++;
+                  Print("trend duration", trendDuration);
+                  if(trendMode != DOWNWARD) {
+                     
+                     if(trendDuration == trendFilter) {
+                        ArrayResize(trendDataArray, currentArraySize + 1);
+                        trendDataArray[currentArraySize].timestamp = iTime(symbol, trendTf, i);
+                        trendDataArray[currentArraySize].duration = trendDuration;
+                     }
+                     if(trendDuration > trendFilter) {
+                        trendDataArray[currentArraySize].duration = trendDuration;
+                     }
+                  }   
+                  Print("trend duration: ", trendDuration);
+               } 
             }
-         }
-         
-         else if(currentMaValue == previousMaValue) {
-         
-         }
-         
-         previousMaValue = currentMaValue;
-       }  
-      
+            
+            else if(currentMaValue < previousMaValue) {
+               if(iterationTrend != DOWNWARD) {
+                  if(trendDuration >= trendFilter) {
+                     Print("Writing to file: Index = ", currentArraySize, ", Timestamp = ", trendDataArray[currentArraySize].timestamp, ", Duration = ", trendDataArray[currentArraySize].duration);
+
+                     FileWrite(fileHandle, currentArraySize, trendDataArray[currentArraySize].timestamp,
+                               trendDataArray[currentArraySize].duration);
+                  }
+                  iterationTrend = DOWNWARD; 
+                  trendDuration = 0;
+               }   
+               if(iterationTrend == DOWNWARD) {
+                  trendDuration++;
+                  if(trendMode != UPWARD) {
+                     //int currentArraySize = ArraySize(trendDataArray);
+                     if(trendDuration == trendFilter) {
+                        ArrayResize(trendDataArray, currentArraySize + 1);
+                        trendDataArray[currentArraySize].timestamp = iTime(symbol, trendTf, i);
+                        trendDataArray[currentArraySize].duration = trendDuration;
+                     }
+                     if(trendDuration > trendFilter) {
+                        trendDataArray[currentArraySize].duration = trendDuration;
+                     }
+                  }   
+               }
+            }
+            
+            else if(currentMaValue == previousMaValue) {
+            
+            }
+            
+            previousMaValue = currentMaValue;
+          }  
+          FileClose(fileHandle);
+       }
+       else {
+         Print("invalid file handle");
+       }
    }
 
 
