@@ -121,18 +121,21 @@ void fillTrendDataArray(string symbol)
          
          for(int i = firstCalculatedBarIdx - 1; i > 0; i--) {
           
-            currentMaValue = iMA(symbol, trendTf, maPeriod, i, maMethod, appliedPrice, 0);
-            //Print("idx: ", i, ". current iMA: ", currentMaValue);
+            currentMaValue = iMA(symbol, trendTf, maPeriod, 0, maMethod, appliedPrice, i);
+            Print("idx: ", i, ". current iMA: ", currentMaValue);
             //Print(symbol, ". ", trendTf, ". ", maPeriod, ". ", i, ". ", maMethod, ". ", appliedPrice, 0, ". ");
             int currentArraySize = ArraySize(trendDataArray);
+            int currentArrayIdx = currentArraySize -1;
             
             if     (currentMaValue > previousMaValue) {
                if(iterationTrend != UPWARD) { 
                   if(trendDuration >= trendFilter) {
-                     Print("Writing to file: Index = ", currentArraySize, ", Timestamp = ", trendDataArray[currentArraySize].timestamp, ", Duration = ", trendDataArray[currentArraySize].duration);
+                     Print("Writing to file: Index = ", currentArrayIdx,  
+                           "Timestamp = ", trendDataArray[currentArrayIdx].timestamp,  
+                           "Duration = ", trendDataArray[currentArrayIdx].duration);
 
-                     FileWrite(fileHandle, currentArraySize, trendDataArray[currentArraySize].timestamp,
-                               trendDataArray[currentArraySize].duration);
+                     FileWrite(fileHandle, currentArraySize, trendDataArray[currentArrayIdx].timestamp,
+                               trendDataArray[currentArrayIdx].duration);
                   }
                   iterationTrend = UPWARD;         
                   trendDuration = 0;
@@ -144,11 +147,13 @@ void fillTrendDataArray(string symbol)
                      
                      if(trendDuration == trendFilter) {
                         ArrayResize(trendDataArray, currentArraySize + 1);
-                        trendDataArray[currentArraySize].timestamp = iTime(symbol, trendTf, i);
-                        trendDataArray[currentArraySize].duration = trendDuration;
+                        currentArraySize = ArraySize(trendDataArray);
+                        currentArrayIdx = currentArraySize - 1;
+                        trendDataArray[currentArrayIdx].timestamp = iTime(symbol, trendTf, i);
+                        trendDataArray[currentArrayIdx].duration = trendDuration;
                      }
                      if(trendDuration > trendFilter) {
-                        trendDataArray[currentArraySize].duration = trendDuration;
+                        trendDataArray[currentArrayIdx].duration = trendDuration;
                      }
                   }   
                   Print("trend duration: ", trendDuration);
@@ -158,10 +163,12 @@ void fillTrendDataArray(string symbol)
             else if(currentMaValue < previousMaValue) {
                if(iterationTrend != DOWNWARD) {
                   if(trendDuration >= trendFilter) {
-                     Print("Writing to file: Index = ", currentArraySize, ", Timestamp = ", trendDataArray[currentArraySize].timestamp, ", Duration = ", trendDataArray[currentArraySize].duration);
+                     Print("Writing to file: Index = ", currentArraySize,  
+                            "Timestamp = ", trendDataArray[currentArrayIdx].timestamp, 
+                            "Duration = ", trendDataArray[currentArrayIdx].duration);
 
-                     FileWrite(fileHandle, currentArraySize, trendDataArray[currentArraySize].timestamp,
-                               trendDataArray[currentArraySize].duration);
+                     FileWrite(fileHandle, currentArraySize, trendDataArray[currentArrayIdx].timestamp,
+                               trendDataArray[currentArrayIdx].duration);
                   }
                   iterationTrend = DOWNWARD; 
                   trendDuration = 0;
@@ -172,11 +179,13 @@ void fillTrendDataArray(string symbol)
                      //int currentArraySize = ArraySize(trendDataArray);
                      if(trendDuration == trendFilter) {
                         ArrayResize(trendDataArray, currentArraySize + 1);
-                        trendDataArray[currentArraySize].timestamp = iTime(symbol, trendTf, i);
-                        trendDataArray[currentArraySize].duration = trendDuration;
+                        currentArraySize = ArraySize(trendDataArray);
+                        currentArrayIdx = currentArraySize - 1;
+                        trendDataArray[currentArrayIdx].timestamp = iTime(symbol, trendTf, i);
+                        trendDataArray[currentArrayIdx].duration = trendDuration;
                      }
                      if(trendDuration > trendFilter) {
-                        trendDataArray[currentArraySize].duration = trendDuration;
+                        trendDataArray[currentArrayIdx].duration = trendDuration;
                      }
                   }   
                }
