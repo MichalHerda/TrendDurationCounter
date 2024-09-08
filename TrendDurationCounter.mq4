@@ -34,7 +34,7 @@ struct instrumentData
 
     
 input ENUM_TIMEFRAMES trendTf = PERIOD_H1;
-input TREND_MODE trendMode = BOTH;                    // trends taken into account
+input TREND_MODE inputTrendMode = BOTH;                    // trends taken into account
 input int trendPeriod = 0;                            // bar index, when trends counting starts
 input int maPeriod = 5;
 input ENUM_MA_METHOD maMethod = MODE_SMA;
@@ -137,6 +137,7 @@ void fillTrendDataArray(string symbol)
                            "Duration = ", trendDataArray[currentArrayIdx].duration);
 
                      FileWrite(fileHandle, currentArraySize, trendDataArray[currentArrayIdx].timestamp,
+                               EnumToString(trendDataArray[currentArrayIdx].trendMode),
                                trendDataArray[currentArrayIdx].duration);
                   }
                   iterationTrend = UPWARD;         
@@ -145,13 +146,14 @@ void fillTrendDataArray(string symbol)
                if(iterationTrend == UPWARD) {
                   trendDuration++;
                   Print("trend duration", trendDuration);
-                  if(trendMode != DOWNWARD) {
+                  if(inputTrendMode != DOWNWARD) {
                      
                      if(trendDuration == trendFilter) {
                         ArrayResize(trendDataArray, currentArraySize + 1);
                         currentArraySize = ArraySize(trendDataArray);
                         currentArrayIdx = currentArraySize - 1;
                         trendDataArray[currentArrayIdx].timestamp = timestamp;
+                        trendDataArray[currentArrayIdx].trendMode = iterationTrend;
                         trendDataArray[currentArrayIdx].duration = trendDuration;
                      }
                      if(trendDuration > trendFilter) {
@@ -171,6 +173,7 @@ void fillTrendDataArray(string symbol)
                             "Duration = ", trendDataArray[currentArrayIdx].duration);
 
                      FileWrite(fileHandle, currentArraySize, trendDataArray[currentArrayIdx].timestamp,
+                               EnumToString(trendDataArray[currentArrayIdx].trendMode),
                                trendDataArray[currentArrayIdx].duration);
                   }
                   iterationTrend = DOWNWARD; 
@@ -178,13 +181,14 @@ void fillTrendDataArray(string symbol)
                }   
                if(iterationTrend == DOWNWARD) {
                   trendDuration++;
-                  if(trendMode != UPWARD) {
+                  if(inputTrendMode != UPWARD) {
                      //int currentArraySize = ArraySize(trendDataArray);
                      if(trendDuration == trendFilter) {
                         ArrayResize(trendDataArray, currentArraySize + 1);
                         currentArraySize = ArraySize(trendDataArray);
                         currentArrayIdx = currentArraySize - 1;
                         trendDataArray[currentArrayIdx].timestamp = timestamp;
+                        trendDataArray[currentArrayIdx].trendMode = iterationTrend;
                         trendDataArray[currentArrayIdx].duration = trendDuration;
                      }
                      if(trendDuration > trendFilter) {
