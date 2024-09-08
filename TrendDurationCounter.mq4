@@ -118,6 +118,7 @@ void fillTrendDataArray(string symbol)
          double currentMaValue = 0;
          int trendDuration = 0;
          TREND_MODE iterationTrend = BOTH;
+         datetime timestamp = firstCalculatedBarTime;
          
          for(int i = firstCalculatedBarIdx - 1; i > 0; i--) {
           
@@ -129,6 +130,7 @@ void fillTrendDataArray(string symbol)
             
             if     (currentMaValue > previousMaValue) {
                if(iterationTrend != UPWARD) { 
+                  timestamp = iTime(symbol, trendTf, i);
                   if(trendDuration >= trendFilter) {
                      Print("Writing to file: Index = ", currentArrayIdx,  
                            "Timestamp = ", trendDataArray[currentArrayIdx].timestamp,  
@@ -149,7 +151,7 @@ void fillTrendDataArray(string symbol)
                         ArrayResize(trendDataArray, currentArraySize + 1);
                         currentArraySize = ArraySize(trendDataArray);
                         currentArrayIdx = currentArraySize - 1;
-                        trendDataArray[currentArrayIdx].timestamp = iTime(symbol, trendTf, i);
+                        trendDataArray[currentArrayIdx].timestamp = timestamp;
                         trendDataArray[currentArrayIdx].duration = trendDuration;
                      }
                      if(trendDuration > trendFilter) {
@@ -162,6 +164,7 @@ void fillTrendDataArray(string symbol)
             
             else if(currentMaValue < previousMaValue) {
                if(iterationTrend != DOWNWARD) {
+                  timestamp = iTime(symbol, trendTf, i);
                   if(trendDuration >= trendFilter) {
                      Print("Writing to file: Index = ", currentArraySize,  
                             "Timestamp = ", trendDataArray[currentArrayIdx].timestamp, 
@@ -181,7 +184,7 @@ void fillTrendDataArray(string symbol)
                         ArrayResize(trendDataArray, currentArraySize + 1);
                         currentArraySize = ArraySize(trendDataArray);
                         currentArrayIdx = currentArraySize - 1;
-                        trendDataArray[currentArrayIdx].timestamp = iTime(symbol, trendTf, i);
+                        trendDataArray[currentArrayIdx].timestamp = timestamp;
                         trendDataArray[currentArrayIdx].duration = trendDuration;
                      }
                      if(trendDuration > trendFilter) {
