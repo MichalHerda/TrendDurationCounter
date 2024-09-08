@@ -15,6 +15,14 @@ enum TREND_MODE
 
 
 
+enum SCOPE_MODE
+   {
+    OPEN_CLOSE,            //from 1 bar open price to last bar close price
+    FULL_RANGE,            //from lowest trend price to highest trend price
+   };
+
+
+
 struct trendData
    {
     datetime timestamp;
@@ -34,7 +42,8 @@ struct instrumentData
 
     
 input ENUM_TIMEFRAMES trendTf = PERIOD_H1;
-input TREND_MODE inputTrendMode = BOTH;                    // trends taken into account
+input TREND_MODE inputTrendMode = BOTH;               // trends taken into account
+input SCOPE_MODE inputScopeMode = OPEN_CLOSE;
 input int trendPeriod = 0;                            // bar index, when trends counting starts
 input int maPeriod = 5;
 input ENUM_MA_METHOD maMethod = MODE_SMA;
