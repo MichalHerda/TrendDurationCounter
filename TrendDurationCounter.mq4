@@ -106,6 +106,12 @@ int countNonShareInstruments(int availableSymbols)
 
 
 
+double scopeCalculation(double lowestTrendPrice, double highestTrendPrice)
+   {
+      return highestTrendPrice - lowestTrendPrice;
+   }
+
+
 void fillTrendDataArray(string symbol)
    {
       ArrayResize(trendDataArray, 0);
@@ -129,6 +135,9 @@ void fillTrendDataArray(string symbol)
          TREND_MODE iterationTrend = BOTH;
          datetime timestamp = firstCalculatedBarTime;
          
+         double lowestTrendPrice = 0;
+         double highestTrendPrice = 0;
+         
          for(int i = firstCalculatedBarIdx - 1; i > 0; i--) {
           
             currentMaValue = iMA(symbol, trendTf, maPeriod, 0, maMethod, appliedPrice, i);
@@ -139,6 +148,14 @@ void fillTrendDataArray(string symbol)
             
             if     (currentMaValue > previousMaValue) {
                if(iterationTrend != UPWARD) { 
+                  if(inputScopeMode == OPEN_CLOSE) { 
+                     lowestTrendPrice = iOpen(symbol, trendTf, i);
+                     highestTrendPrice = iClose(symbol, trendTf, i);
+                  }   
+                  if(inputScopeMode == FULL_RANGE) {
+                     lowestTrendPrice = iLow(symbol, trendTf, i);
+                     highestTrendPrice = iHigh(symbol, trendTf, i);
+                  }   
                   timestamp = iTime(symbol, trendTf, i);
                   if(trendDuration >= trendFilter) {
                      Print("Writing to file: Index = ", currentArrayIdx,  
@@ -154,6 +171,11 @@ void fillTrendDataArray(string symbol)
                }  
                if(iterationTrend == UPWARD) {
                   trendDuration++;
+                  double lowestIndexPrice = iLow(symbol, trendTf, i);
+                  double highestIndexPrice = iHigh(symbol, trendTf, i);
+                  if( (inputScopeMode == FULL_RANGE) && ( lowestIndexPrice < lowestTrendPrice) ) {
+                     lowestTrendPrice = lowestIndexPrice;
+                  }
                   Print("trend duration", trendDuration);
                   if(inputTrendMode != DOWNWARD) {
                      
