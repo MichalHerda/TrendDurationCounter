@@ -137,6 +137,7 @@ void fillTrendDataArray(string symbol)
          
          double lowestTrendPrice = 0;
          double highestTrendPrice = 0;
+         double trendScope = 0;
          
          for(int i = firstCalculatedBarIdx - 1; i > 0; i--) {
           
@@ -148,14 +149,7 @@ void fillTrendDataArray(string symbol)
             
             if     (currentMaValue > previousMaValue) {
                if(iterationTrend != UPWARD) { 
-                  if(inputScopeMode == OPEN_CLOSE) { 
-                     lowestTrendPrice = iOpen(symbol, trendTf, i);
-                     highestTrendPrice = iClose(symbol, trendTf, i);
-                  }   
-                  if(inputScopeMode == FULL_RANGE) {
-                     lowestTrendPrice = iLow(symbol, trendTf, i);
-                     highestTrendPrice = iHigh(symbol, trendTf, i);
-                  }   
+                  
                   timestamp = iTime(symbol, trendTf, i);
                   if(trendDuration >= trendFilter) {
                      Print("Writing to file: Index = ", currentArrayIdx,  
@@ -164,18 +158,32 @@ void fillTrendDataArray(string symbol)
 
                      FileWrite(fileHandle, currentArraySize, trendDataArray[currentArrayIdx].timestamp,
                                EnumToString(trendDataArray[currentArrayIdx].trendMode),
+                               trendDataArray[currentArrayIdx].scope,
                                trendDataArray[currentArrayIdx].duration);
                   }
+                  
+                  if(inputScopeMode == OPEN_CLOSE) { 
+                     lowestTrendPrice = iOpen(symbol, trendTf, i);
+                     highestTrendPrice = iClose(symbol, trendTf, i);
+                  }   
+                  if(inputScopeMode == FULL_RANGE) {
+                     lowestTrendPrice = iLow(symbol, trendTf, i);
+                     highestTrendPrice = iHigh(symbol, trendTf, i);
+                  }   
+                  
                   iterationTrend = UPWARD;         
                   trendDuration = 0;
                }  
                if(iterationTrend == UPWARD) {
                   trendDuration++;
-                  double lowestIndexPrice = iLow(symbol, trendTf, i);
-                  double highestIndexPrice = iHigh(symbol, trendTf, i);
-                  if( (inputScopeMode == FULL_RANGE) && ( lowestIndexPrice < lowestTrendPrice) ) {
-                     lowestTrendPrice = lowestIndexPrice;
-                  }
+                  
+                  if(inputScopeMode == OPEN_CLOSE) { 
+                     highestTrendPrice = MathMax(highestTrendPrice, iClose(symbol, trendTf, i));
+                  }   
+                  if(inputScopeMode == FULL_RANGE) {
+                     lowestTrendPrice = MathMin(lowestTrendPrice, iLow(symbol, trendTf, i));
+                     highestTrendPrice = MathMax(highestTrendPrice, iHigh(symbol, trendTf, i));
+                  }   
                   Print("trend duration", trendDuration);
                   if(inputTrendMode != DOWNWARD) {
                      
@@ -189,6 +197,7 @@ void fillTrendDataArray(string symbol)
                      }
                      if(trendDuration > trendFilter) {
                         trendDataArray[currentArrayIdx].duration = trendDuration;
+                        trendDataArray[currentArrayIdx].scope = scopeCalculation(lowestTrendPrice, highestTrendPrice);
                      }
                   }   
                   Print("trend duration: ", trendDuration);
@@ -198,20 +207,43 @@ void fillTrendDataArray(string symbol)
             else if(currentMaValue < previousMaValue) {
                if(iterationTrend != DOWNWARD) {
                   timestamp = iTime(symbol, trendTf, i);
+                   
                   if(trendDuration >= trendFilter) {
                      Print("Writing to file: Index = ", currentArraySize,  
-                            "Timestamp = ", trendDataArray[currentArrayIdx].timestamp, 
-                            "Duration = ", trendDataArray[currentArrayIdx].duration);
+                            ". Timestamp = ", trendDataArray[currentArrayIdx].timestamp, 
+                            ". Duration = ", trendDataArray[currentArrayIdx].duration,
+                            ". Scope = ", trendDataArray[currentArrayIdx].scope,
+                            ". Duration = ", trendDataArray[currentArrayIdx].duration);
 
                      FileWrite(fileHandle, currentArraySize, trendDataArray[currentArrayIdx].timestamp,
                                EnumToString(trendDataArray[currentArrayIdx].trendMode),
-                               trendDataArray[currentArrayIdx].duration);
+                               trendDataArray[currentArrayIdx].duration,
+                               trendDataArray[currentArrayIdx].scope);
                   }
+                  
+                  if(inputScopeMode == OPEN_CLOSE) { 
+                     highestTrendPrice = iOpen(symbol, trendTf, i);
+                     lowestTrendPrice = iClose(symbol, trendTf, i);
+                  }   
+                  if(inputScopeMode == FULL_RANGE) {
+                     highestTrendPrice = iHigh(symbol, trendTf, i);
+                     lowestTrendPrice = iLow(symbol, trendTf, i);
+                  }  
+                  
                   iterationTrend = DOWNWARD; 
                   trendDuration = 0;
                }   
                if(iterationTrend == DOWNWARD) {
                   trendDuration++;
+                  
+                  if(inputScopeMode == OPEN_CLOSE) { 
+                     lowestTrendPrice = MathMin(lowestTrendPrice, iClose(symbol, trendTf, i));
+                  }   
+                  if(inputScopeMode == FULL_RANGE) {
+                     highestTrendPrice = MathMax(highestTrendPrice, iHigh(symbol, trendTf, i));
+                     lowestTrendPrice = MathMin(lowestTrendPrice, iLow(symbol, trendTf, i));                    
+                  }   
+                  
                   if(inputTrendMode != UPWARD) {
                      //int currentArraySize = ArraySize(trendDataArray);
                      if(trendDuration == trendFilter) {
@@ -224,6 +256,7 @@ void fillTrendDataArray(string symbol)
                      }
                      if(trendDuration > trendFilter) {
                         trendDataArray[currentArrayIdx].duration = trendDuration;
+                        trendDataArray[currentArrayIdx].scope = scopeCalculation(lowestTrendPrice, highestTrendPrice);
                      }
                   }   
                }
